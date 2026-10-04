@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#171a1f"/>
+      <stop offset="1" stop-color="#0f1115"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffad2f"/>
+      <stop offset="1" stop-color="#ed7a12"/>
+    </linearGradient>
+    <linearGradient id="orange2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffbf55"/>
+      <stop offset="1" stop-color="#ff8a18"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fdcff"/>
+      <stop offset="1" stop-color="#45aee9"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="6" y="6" width="244" height="244" rx="42" fill="url(#bg)"/>
+
+  <path d="M31 57 L57 76 L72 133 L42 107 Z" fill="url(#orange)"/>
+  <path d="M225 57 L199 76 L184 133 L214 107 Z" fill="url(#orange)"/>
+
+  <path d="M45 122 L76 143 L101 164 L90 134 L61 114 Z" fill="#e97416"/>
+  <path d="M211 122 L180 143 L155 164 L166 134 L195 114 Z" fill="#e97416"/>
+
+  <path d="M59 75 L70 78 L111 129 L103 145 L91 123 Z" fill="url(#orange2)"/>
+  <path d="M197 75 L186 78 L145 129 L153 145 L165 123 Z" fill="url(#orange2)"/>
+
+  <path d="M111 145 Q111 140 116 140 L140 140 Q145 140 145 145 L132 176 Q128 185 124 176 Z" fill="url(#cyan)"/>
+</svg>

@@ -1,7 +1,3 @@
-> **Status:** Pre-release public documentation. Source code and the Windows release package will be added to the public repository after V1 package acceptance.
-
----
-
 # Elite Dangerous Lighting
 
 **Make your cockpit lighting react to Elite Dangerous.**
@@ -50,9 +46,9 @@ For normal use you need:
 
 EDL can currently control supported hardware through:
 
-- **Razer Chroma** — Razer's RGB lighting system and compatible devices exposed through Chroma
-- **OpenRGB** — an independent application that can expose supported PC lighting hardware to EDL
-- **Enhanced Govee** — EDL's direct integration for supported Govee devices, including finer zone control (**currently only the Govee H61C3 is supported through this direct integration**)
+- **Razer Chroma** — Razer's RGB lighting system and compatible devices exposed through Chroma. Razer Synapse/Chroma must be installed and available.
+- **OpenRGB** — an independent application that can expose supported PC lighting hardware to EDL. For OpenRGB-controlled devices, run the OpenRGB SDK server in the logged-in Windows session before starting EDL lighting.
+- **Enhanced Govee** — EDL's direct integration for supported Govee devices, including finer zone control (**currently only the Govee H61C3 is supported through this direct integration**). The device must be reachable on the local network, and the same H61C3 must not simultaneously be assigned to Govee Desktop's Razer/Chroma control while EDL owns it directly.
 
 EDL presents detected lighting hardware in one place, regardless of which integration is used underneath.
 
@@ -60,7 +56,33 @@ EDL presents detected lighting hardware in one place, regardless of which integr
 
 ## Installation
 
-The Windows release package has not been published yet. It will be added here after V1 package acceptance.
+### Windows installer
+
+Download the latest stable Windows installer from the [GitHub Releases page](https://github.com/DocTrintignant/elite-dangerous-lighting/releases/latest).
+
+For V1, download:
+
+```text
+Elite.Dangerous.Lighting.Setup.exe
+```
+
+Run the installer, then launch **Elite Dangerous Lighting** from the Start Menu.
+
+The installer is per-user and does not require administrator rights. EDL stores profiles, settings and logs outside the application directory so normal application updates do not replace your user data.
+
+### Run from source
+
+Python 3.12 is the validated development/runtime baseline for V1.
+
+From a clean checkout:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements.txt
+.\.venv\Scripts\python src\lighting_ui_main.py
+```
+
+The Windows installer remains the recommended path for normal users.
 
 ---
 
@@ -554,16 +576,24 @@ Everything described so far works without COVAS:NEXT.
 
 Two separate COVAS:NEXT plugins are involved:
 
-**Chromas Next** connects COVAS:NEXT to EDL.  
-**Covasify** adds optional Spotify control.
+**[Chromas Next](https://github.com/DocTrintignant/covas-next-plugins/tree/main/ChromasNext)** connects COVAS:NEXT to EDL.  
+**[Covasify](https://github.com/DocTrintignant/covas-next-plugins/tree/main/Covasify)** adds optional Spotify control.
 
 You need Chromas Next for COVAS:NEXT to control EDL. You only need Covasify if you also want Spotify functionality.
+
+Install COVAS:NEXT plugins under:
+
+```text
+%APPDATA%\com.covas-next.ui\plugins\
+```
+
+Copy the published `ChromasNext` and, if wanted, `Covasify` folders there, then restart COVAS:NEXT. Each plugin's own README contains its setup instructions.
 
 For COVAS:NEXT lighting commands and saved Mode launches, **Start lighting** must already be running in EDL. Connection/status checks remain separate from that live-lighting requirement.
 
 ## Voice control with Chromas Next
 
-**Chromas Next** is the bridge between COVAS:NEXT and EDL.
+**[Chromas Next](https://github.com/DocTrintignant/covas-next-plugins/tree/main/ChromasNext)** is the bridge between COVAS:NEXT and EDL.
 
 It does not control RGB hardware itself. EDL remains responsible for your lighting; Chromas Next simply passes requests from COVAS:NEXT to EDL.
 
@@ -599,7 +629,7 @@ You can check the connection from:
 
 ## Optional Spotify music with Covasify
 
-**Covasify** is a separate COVAS:NEXT plugin that controls Spotify.
+**[Covasify](https://github.com/DocTrintignant/covas-next-plugins/tree/main/Covasify)** is a separate COVAS:NEXT plugin that controls Spotify.
 
 It is not required for EDL and it is not required for voice control of EDL.
 
