@@ -36,7 +36,7 @@ EDL works on its own. Optional voice control and Spotify features can be added t
 
 ## Development Transparency and AI use
 
-The projects in this repository are developed with substantial generative-AI assistance under human direction.
+The projects in this repository is developed with substantial generative-AI assistance under human direction.
 
 Project goals, requirements, architecture, design decisions, testing, physical validation where applicable, acceptance criteria, maintenance direction, and publication are directed by **DocTrintignant**. AI-generated code is reviewed and tested before being accepted, but users should understand that these are non-commercial passion projects maintained by a non-professional and may still contain defects or inefficiencies. Download and use at your own discretion.
 
