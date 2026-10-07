@@ -1,5 +1,7 @@
 # Elite Dangerous Lighting
 
+> **Platform support:** This software is developed and tested on Windows. It has not been tested on Linux, and compatibility or correct operation on Linux is not guaranteed.
+
 **Make your cockpit lighting react to Elite Dangerous.**
 
 Elite Dangerous Lighting — **EDL** — is a Windows application that connects Elite Dangerous to compatible RGB lighting.
