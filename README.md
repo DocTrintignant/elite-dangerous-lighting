@@ -751,87 +751,6 @@ If the check cannot complete because EDL is offline or the release service is un
 
 ---
 
-# Cockpit gameplay lighting — design checkpoint (11 October 2026)
-
-> **Design ledger, not a shipped gameplay preset.** This checkpoint records operator-approved concepts and remaining validation. It does not imply that the new cabin-state resolver or the sequences below are already implemented or physically accepted. Exact RGB, brightness, speed and timing remain open unless noted.
-
-## Ownership and method
-
-EDL stays standalone and deterministic; preserve accepted renderers, transport ownership, profile formats, Status.json state authority and startup choreography. Physical cockpit behavior outranks software-only verification.
-
-- **VIRPIL** — discrete statuses, instrumentation, controls and annunciators.
-- **Enhanced Govee H61C3** — cabin/environment: the operating situation the commander occupies.
-- **ASUS/OpenRGB** — machinery: power, propulsion, charge, load, thermal stress and recovery. Gameplay semantics still need their own pass.
-- Razer keyboard/mouse and ASUS monitor remain excluded from Elite gameplay lighting in this cockpit composition.
-
-The design pipeline is **Elite state → semantic role → resolved cabin state → color/effect intent → rendering**. Classify flags as **DIRECT VISUAL STATE**, **MODIFIER**, **GUARD / CONDITION**, or **NO GOVEE EFFECT**. Multiple flags can resolve to one meaningful cabin state. Keep the aesthetic dark, technical and restrained. Black/off is a valid output; avoid one flag = one color. The uploaded VIRPIL V2.6 profile is an aesthetic/historical reference, not a palette to duplicate.
-
-## Govee gameplay vocabulary
-
-The following are accepted *concepts*, not final physical calibration.
-
-| Situation | Color family | Intended effect |
-| --- | --- | --- |
-| Docked / Landed | Muted deep green | **STATIC** — shared secured state |
-| Normal open-space flight | Deep burnt amber / ember orange | **STATIC** |
-| Planetary flight / vicinity | Dark bronze / sand-gold | **STATIC**; exact HasLatLong-based resolver remains open |
-| Supercruise | Deep cobalt / ultramarine with visibly contrasting endpoints | **WAVE**; a physically tried 4-second WAVE already felt fairly slow |
-| Glide | Cold or icy white | Rapid/dense **STARLIGHT** |
-| Fighter | Graphite / near-black neutral | **STATIC**; a separate cabin |
-| SRV | Muted olive / sulphur-khaki | **STATIC** |
-| SilentRunning | Deep violet | Slow **BREATH**; not an alarm |
-| BeingInterdicted | Supercruise cobalt invaded by hot magenta/purple | Hard **FLASH** |
-| IsInDanger | Deep red ↔ strong red | Red-on-red **FLASH**, not red-black |
-| OverHeating | Predominantly thermal red | **FIRE**, not decorative orange/yellow; initially assessed around 0.10-second noise cadence |
-| Battle Ready | Dim submarine / naval-control-room red | **STATIC**, deliberate tactical posture rather than danger |
-
-**Battle Ready** requires **HardpointsDeployed = 1 AND HudInAnalysisMode = 0** (Combat HUD), guarded by **InMainShip**. Hardpoints alone could also be mining equipment; HUD mode alone is not a combat posture. Analysis mode with deployed hardpoints does not create a Mining Mode. This two-condition resolver awaits a real-game test. Generic danger and overheating remain separate, stronger semantic conditions.
-
-### Four-state FSD environmental language
-
-VIRPIL's physical T7/T8 protective covers are arming/annunciator controls only; merely opening a cover must not change Govee or ASUS.
-
-| FSD phase | Color family | Effect |
-| --- | --- | --- |
-| Supercruise charging | Dark heated amber → pale warm white, not saturated gold | **PULSE** |
-| Established Supercruise | Cobalt / ultramarine | **WAVE** |
-| Hyperspace charging | Electric violet → cold/pale white (more energetic than Silent Running) | **BREATH** |
-| Hyperspace / witchspace tunnel | Cold-white dominant, restrained pale cyan/ice-blue | **FIRE** as turbulent spatial noise, not literal flame |
-
-The current decoder in **src/elite_status.py** provides **FsdCharging**, **FsdHyperdriveCharging**, **FsdJump** and **Supercruise**. Proposed Status-only interpretation: FsdHyperdriveCharging identifies a hyperspace cycle, while FsdJump rising/falling *within that known cycle* may bracket the witchspace tunnel. FsdJump is **not** hyperspace-exclusive; it also occurs around Supercruise entry. Correlate all four flags against a real charge/countdown/tunnel/arrival trace before accepting the state machine. Do not substitute a fixed-duration tunnel timer for unproven telemetry. On exit reveal the **current** resolved cabin state, normally Supercruise.
-
-**FsdCooldown** is **NO GOVEE EFFECT**, applies after both Supercruise and hyperspace transitions, and may later inform ASUS recovery. **FsdMassLocked** is VIRPIL instrumentation and **NO GOVEE EFFECT**; it might be a future guard, not a cabin scene.
-
-### Sustained landing preparation and arrival
-
-**LandingGearDown is not itself a cabin mode.** The new landing-preparation concept is sustained for a *qualified landing approach* and works for both planetary landing and station docking.
-
-1. **Enter guidance** when landing gear is down **and** a valid planetary/station approach is established. Lowering gear randomly in empty space must **not** activate it. Qualification after gear was already lowered should also be considered; exact trigger/resolver logic is not frozen.
-2. **While approaching**, run a **continuous, repeating** landing-marshalling environment. This does **not** expire after a fixed number of seconds; it lasts while the qualifying approach remains in progress.
-3. **Approved color family:** **marshaller red + soft, slightly warm signal white**, inspired by naval flight-deck landing guidance. Avoid emergency-strobe intensity. Exact RGB values are **not** yet accepted.
-4. **First effect to test on real hardware:** existing **multi-entry WAVE** with repeated red and white palette entries. Current **src/lighting_effect_frames.py** WAVE smoothly interpolates adjacent palette colors; repeated entries can produce flatter moving bands, **not mathematically sharp red/white boundaries**. Validate movement, perceptual separation, brightness, period and the installed H61C3 orientation before locking this effect. Do not modify the accepted general-purpose WAVE engine pre-emptively.
-5. **Complete** at **Landed false→true OR Docked false→true**: stop guidance, present bright-green **one-shot arrival punctuation**, then muted deep-green **STATIC**. The previously accepted planetary touchdown punctuation is green trigger-scoped **RIPPLE**. The exact station-docking punctuation, informally described as a green flash, is still to be resolved without silently changing the accepted touchdown mechanism.
-6. **Abort/interrupt:** gear retraction or loss of qualified approach cancels guidance and reveals the **current** underlying cabin state. Established operator/scripted authority and higher-significance hazard behavior remain intact; underlying Elite telemetry continues to update.
-
-**First unproven telemetry boundary:** Status.json exposes LandingGearDown, Landed, Docked, HasLatLong and related planetary position/altitude values, but does not reliably report an authorized **station** approach. A narrowly scoped future **Elite Dangerous Journal listener**, possibly observing **DockingGranted** plus appropriate cancellation, revocation and termination events, **may** be needed for a safe station qualifier. This is only a **candidate to investigate**, *not* an approved or implemented listener/state machine. Do not invent a Status-only proxy such as mass lock = docking clearance. Status.json remains the canonical state authority. Planetary approach qualification also requires real telemetry testing.
-
-### Other classified Status fields
-
-- **NO GOVEE EFFECT:** LowFuel, ScoopingFuel, ShieldsUp (including shields-down condition), FlightAssistOff, CargoScoopDeployed, LightsOn, NightVision and SupercruiseAssistActive. These retain the current cabin; instrumentation belongs primarily to VIRPIL.
-- **GUARD / CONDITION:** HudInAnalysisMode participates in Battle Ready only; no independent color. HardpointsDeployed alone does not change the cabin; it only qualifies Battle Ready with Combat HUD. LandingGearDown alone does not activate landing guidance in empty space.
-- **BLACK / OFF guard:** OnFoot, InTaxi, social spaces, concourse and other situations outside the commander's own cockpit.
-- **OPEN:** SupercruiseOverdriveActive / SCO. Cold FIRE now belongs to witchspace; establish a separate environmental concept rather than reusing it by convenience.
-
-### Preserved startup and next work
-
-Startup structure remains frozen: card-insertion **one-shot RIPPLE** travels physically from right-side card reader toward left, then darkness; WinWing MFD's green ignition punch owns GO; ASUS follows with one continuous bottom-to-top, overlapping PSU → GPU → motherboard → front/AIO power-up. At the final authority transfer Govee fades into the **current live** cabin and ASUS settles into the **current live** machinery state. Never restore stale captured status.
-
-The installed H61C3 has shown apparent LEFT/RIGHT inversion. Investigate saved orientation/runtime mapping rather than reversing shared effect semantics; describe movement in **physical cockpit** terms.
-
-After completing Govee semantics and resolving SCO, define ASUS machinery semantics, derive startup colors from those gameplay vocabularies, and physically tune colors, brightness, timing, effect widths and overlaps. Any later keyboard-only Govee physical-test profile must use the then-current native profile schema and actual configured H61C3 target ID.
-
----
-
 # Planned development
 
 A future version is planned to support selected **Elite Dangerous Journal events** as triggers for temporary lighting behaviour.
@@ -857,8 +776,6 @@ Saved Mode or temporary action
 ```
 
 Journal support is intended to extend the existing system, not replace it.
-
-A separate potential Journal use is to qualify **sustained Govee landing preparation** during authorized station approaches (for example, via DockingGranted). That possibility is documented above but has **not been implemented or approved as a new telemetry source**; Status.json continues to own current-state Rules.
 
 ---
 
